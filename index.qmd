@@ -1,0 +1,505 @@
+---
+title: "Manitoba Choral Association Stakeholder Feedback"
+format:
+    dashboard:
+        theme: styles.scss
+---
+
+```{r}
+
+#| include: false
+#| label: setup
+
+library(tidyverse)
+library(gt)
+library(scales)
+
+#source("scripts/survey-monkey-import.R")
+
+
+audience_data_full <- read_rds("data/audience_survey.rds") |> 
+    mutate(age_group_collapsed = case_when(
+        age_group == "65+" ~ age_group,
+        TRUE ~ "Under 65"
+    ))
+
+# set colours
+teal <- "#007f97"
+light_teal <- "#98b8b8"
+purple <- "#4d4076"
+light_purple <- "#8e7291"
+
+# set ggplot theme
+plot_theme <- function(){
+    theme_minimal(base_size = 14) +
+    theme(
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text.x = element_blank(),
+        plot.title.position = "plot"
+    )
+}
+
+source("scripts/functions.R")
+
+# count number of responses to date
+n_respondents <- audience_data_full |> 
+    count() |> 
+    pull(n)
+
+```
+
+# Audience Survey
+
+## Row {height = 10%}
+
+Number of respondents: `r n_respondents`
+
+## Row {height = 45%}
+
+### Column {.tabset}
+
+
+```{r}
+#| title: "Age groups"
+
+df <- audience_data_full |> 
+    count(age_group) |> 
+    drop_na(age_group) |> 
+    mutate(pct = n/sum(n)) |> 
+    mutate(pct_label = paste0(round(pct * 100, 0), "%"))
+
+simple_bar_chart(df, age_group)
+
+```
+
+```{r}
+#| title: "Location"
+
+df <- audience_data_full |> 
+    count(live) |> 
+    drop_na(live) |> 
+    mutate(pct = n/sum(n)) |> 
+    mutate(pct_label = paste0(round(pct*100, 0), "%"))
+
+simple_bar_chart(df, live) +
+    labs(title = "Where do you currently live?")
+
+```
+
+```{r}
+#| title: "Origin"
+
+df <- audience_data_full |> 
+    count(received_from) |> 
+    drop_na() |> 
+    mutate(
+        pct = n/sum(n),
+        pct_label = paste0(round(pct*100, 1), "%"))
+        
+simple_bar_chart(df, received_from) +
+    labs(title = "How did you receive this survey?") +
+    scale_x_continuous(expand = expansion(mult = c(0, 0.2)))
+```
+
+
+```{r}
+#| title: "Attendance"
+
+df <- audience_data_full |> 
+    count(num_concerts_attended) |> 
+    drop_na(num_concerts_attended) |> 
+    mutate(
+        pct = n/sum(n),
+        pct_label = paste0(round(pct * 100, 0), "%")
+    )
+    
+simple_bar_chart(df, num_concerts_attended) +
+    labs(title = "Approximately how many choral concerts do you attend in a year?")
+
+
+```
+
+
+
+```{r}
+#| title: "Attendance by age grp"
+
+df <- audience_data_full |> 
+    select(age_group_collapsed, num_concerts_attended) |> 
+    drop_na() |> 
+    group_by(age_group_collapsed) |> 
+    count(num_concerts_attended) |> 
+    mutate(pct = n/sum(n),
+    pct_label = paste0(round(pct * 100, 0), "%"))
+
+grouped_bar_chart(df, num_concerts_attended, age_group_collapsed) +
+    labs(
+        title = "Approximately how many choral concerts do you attend in a year?",
+        subtitle = "By age group"
+    )
+
+
+```
+
+
+### Column {.tabset}
+
+```{r}
+#| title: "Choirs"
+
+df <- audience_data_full |> 
+    select(starts_with("attended")) |> 
+    pivot_longer(cols = everything()) |> 
+    filter(!is.na(value)) |> 
+    count(value) |> 
+    mutate(pct = n/n_respondents,
+        pct_label = paste0(round(pct * 100, 0), "%"))
+        
+simple_bar_chart(df, value) +
+    labs(title = "Which of the following choirs have you attended in the past 3 years?")
+```
+
+```{r}
+#| title: "Choirs by age"
+
+df <- audience_data_full |> 
+    select(starts_with("attended"), age_group_collapsed) |> 
+    pivot_longer(cols = -age_group_collapsed) |> 
+    filter(!is.na(value)) |> 
+    group_by(age_group_collapsed) |> 
+    count(value) |> 
+    mutate(
+        pct = n/n_respondents,
+        pct_label = paste0(round(pct * 100, 0), "%"))
+
+grouped_bar_chart(df, value, age_group_collapsed) +
+    labs(
+        title = "Which of the following choirs have you attended in the past 3 years?",
+        subtitle = "By age group"
+    )
+
+
+```
+
+```{r}
+#| title: "Post-Covid attendance"
+
+df <- audience_data_full |> 
+    count(frequency_now) |> 
+    mutate(
+        pct = n/sum(n),
+        pct_label = paste0(round(pct * 100, 0), "%")
+        )
+
+simple_bar_chart(df, frequency_now) + 
+    labs(title = "Compared to before the pandemic, how often do you attend choral concerts?")
+
+
+
+
+```
+
+```{r}
+#| title: "Post-Covid attendance by age"
+
+df <- audience_data_full |>
+    group_by(age_group_collapsed) |> 
+    count(frequency_now) |> 
+    mutate(
+        pct = n/sum(n),
+        pct_label = paste0(round(pct * 100, 0), "%")
+        )
+
+grouped_bar_chart(df, frequency_now, age_group_collapsed) +
+    labs(
+        title = "Compared to before the pandemic, how often do you attend choral concerts?",
+        subtitle = "By age group"
+    )     
+
+```
+
+## Row {height = 45%}
+
+### Column {.tabset}
+
+```{r}
+#| title: "Motivation"
+
+df <- audience_data_full |> 
+    select(starts_with("motivation")) |> 
+    mutate(motivation_other = case_when(
+        !is.na(motivation_other) ~ "Other",
+        TRUE ~ NA
+    )) |> 
+    pivot_longer(cols = everything()) |> 
+    select(value) |> 
+    mutate(value = str_remove(value, "<span>"),
+    value = str_remove(value, "</span>")) |> 
+        filter(!is.na(value)) |> 
+        count(value) |> 
+        arrange(desc(n)) |> 
+        mutate(
+            pct = n/n_respondents,
+            pct_label = paste0(round(pct * 100, 0), "%"))
+            
+simple_bar_chart(df, value) +
+    labs(
+        title = "What usually motivates you to attend a choral concert?"
+    )
+
+```
+
+```{r}
+#| title: "Motivation by age"
+
+df <- audience_data_full |> 
+    select(starts_with("motivation"), age_group_collapsed) |> 
+    mutate(motivation_other = case_when(
+        !is.na(motivation_other) ~ "Other",
+        TRUE ~ NA
+    )) |> 
+    pivot_longer(cols = -age_group_collapsed) |> 
+    mutate(value = str_remove(value, "<span>"),
+    value = str_remove(value, "</span>")) |> 
+        filter(!is.na(value)) |> 
+    group_by(age_group_collapsed) |> 
+        count(value) |> 
+        mutate(
+            pct = n/n_respondents,
+            pct_label = paste0(round(pct * 100, 0), "%"))
+            
+grouped_bar_chart(df, value, age_group_collapsed) +
+    labs(
+        title = "What usually motivates you to attend a choral concert?",
+        subtitle = "By age group"
+    )
+
+
+```
+
+```{r}
+#| title: "Barriers"
+
+df <- audience_data_full |> 
+    select(starts_with("barriers")) |> 
+    mutate(barriers_other = case_when(
+        !is.na(barriers_other) ~ "Other",
+        TRUE ~ NA
+    )) |> 
+    pivot_longer(cols = everything()) |> 
+    select(value) |> 
+        filter(!is.na(value)) |> 
+        count(value) |> 
+        arrange(desc(n)) |> 
+        mutate(
+            pct = n/n_respondents,
+            pct_label = paste0(round(pct * 100, 0), "%"))
+
+simple_bar_chart(df, value) +
+    labs(
+        title = "What factors might prevent you from attending a choral concert more often?"
+    )
+```
+
+```{r}
+#| title: "Barriers by age"
+
+df <- audience_data_full |> 
+    select(starts_with("barriers"), age_group_collapsed) |> 
+    mutate(barriers_other = case_when(
+        !is.na(barriers_other) ~ "Other",
+        TRUE ~ NA
+    )) |> 
+    pivot_longer(cols = -age_group_collapsed) |> 
+    filter(!is.na(value)) |> 
+    group_by(age_group_collapsed) |> 
+    count(value) |> 
+    mutate(pct = n/sum(n),
+        pct_label = paste0(round(pct * 100, 0), "%"))
+
+grouped_bar_chart(df, value, age_group_collapsed) +
+    labs(
+        title = "What factors might prevent you from attending a choral concert more often?",
+        subtitle = "By age group"
+    )
+```
+
+```{r}
+#| title: "Other events"
+
+df <- audience_data_full |> 
+    select(starts_with("other")) |> 
+    pivot_longer(cols = everything()) |> 
+    select(value) |> 
+    drop_na(value) |> 
+    count(value) |> 
+    arrange(desc(n)) |> 
+    mutate(pct = n/n_respondents,
+        pct_label = paste0(round(pct * 100, 0), "%"))
+        
+simple_bar_chart(df, value) +
+    labs(
+        title = "What other types of arts or cultural event do you attend?"
+    )
+
+```
+
+```{r}
+#| title: "Other events by age"
+
+df <- audience_data_full |> 
+    select(starts_with("other"), age_group_collapsed) |> 
+    pivot_longer(cols = -age_group_collapsed) |> 
+    drop_na(value) |> 
+    group_by(age_group_collapsed) |> 
+    count(value) |> 
+    mutate(pct = n/n_respondents,
+        pct_label = paste0(round(pct * 100, 0), "%"))
+        
+grouped_bar_chart(df, value, age_group_collapsed) +
+    labs(
+        title = "What other types of arts or cultural event do you attend?",
+        subtitle = "By age group",
+    )
+```
+
+### Column {.tabset}
+
+```{r}
+#| title: "Awareness"
+
+df <- audience_data_full |> 
+    count(awareness) |> 
+    drop_na(awareness) |> 
+    mutate(pct = n/sum(n),
+        pct_label = paste0(round(pct * 100, 0), "%"))
+        
+simple_bar_chart(df, awareness) +
+    labs(
+        title = "Before receiving this survey, how aware were you of the range of professional choral organizations in Manitoba?"
+    )
+    
+```
+
+```{r}
+#| title: "Awareness by age"
+
+df <- audience_data_full |> 
+    group_by(age_group_collapsed) |> 
+    count(awareness) |> 
+    drop_na(awareness) |> 
+    mutate(pct = n/sum(n),
+        pct_label = paste0(round(pct * 100, 0), "%"))
+        
+grouped_bar_chart(df, awareness, age_group_collapsed) +
+    labs(
+        title = "Before receiving this survey, how aware were you of the range of professional choral organizations in Manitoba?",
+        subtitle = "By age group"
+    )
+
+```
+
+```{r}
+#| title: "Distinction"
+
+df <- audience_data_full |> 
+    count(distinct_choirs) |> 
+    drop_na(distinct_choirs) |> 
+    mutate(pct = n/sum(n),
+        pct_label = paste0(round(pct * 100, 0), "%"))
+
+simple_bar_chart(df, distinct_choirs) +
+    labs(
+        title = "In your experience, do the different professional choirs in Manitoba have clear and distinct identities and styles?"
+    )
+
+```
+
+```{r}
+#| title: "Distinction by age"
+
+df <- audience_data_full |> 
+    group_by(age_group_collapsed) |> 
+    count(distinct_choirs) |> 
+    drop_na(distinct_choirs) |> 
+    mutate(pct = n/sum(n),
+        pct_label = paste0(round(pct * 100, 0), "%"))
+        
+grouped_bar_chart(df, distinct_choirs, age_group_collapsed) +
+    labs(
+        title = "In your experience, do the different professional choirs in Manitoba have clear and distinct identities and styles?",
+        subtitle = "By age group"
+    )
+
+```
+
+``` {r}
+#| title: "Value"
+
+df <- audience_data_full |> 
+    count(rate_value) |> 
+    drop_na(rate_value) |> 
+    mutate(pct = n/sum(n),
+        pct_label = paste0(round(pct * 100, 0), "%"))
+        
+simple_bar_chart(df, rate_value) +
+    labs(
+        title = "How would you rate the value of choral concert tickets compared with other arts events you attend?"
+    )
+
+```
+
+```{r}
+#| title: "Value by age"
+
+df <- audience_data_full |> 
+    group_by(age_group_collapsed) |> 
+    count(rate_value) |> 
+    drop_na(rate_value) |> 
+    mutate(pct = n/sum(n),
+        pct_label = paste0(round(pct * 100, 0), "%"))
+        
+grouped_bar_chart(df, rate_value, age_group_collapsed) +
+    labs(
+        title = "In your experience, do the different professional choirs in Manitoba have clear and distinct identities and styles?",
+        subtitle = "By age group"
+    )
+```
+
+```{r}
+#| title: "Price range"
+
+df <- audience_data_full |> 
+    count(reasonable_price_range) |> 
+    drop_na(reasonable_price_range) |> 
+        mutate(pct = n/sum(n),
+        pct_label = paste0(round(pct * 100, 0), "%"))
+
+simple_bar_chart(df, reasonable_price_range) +
+    labs(
+        title = "What ticket price range feels reasonable to you for a professional choral concert?"
+    )
+```
+
+```{r}
+#| title: "Price range by age"
+
+df <- audience_data_full |> 
+    group_by(age_group_collapsed) |> 
+    count(reasonable_price_range) |> 
+    drop_na(reasonable_price_range) |> 
+        mutate(pct = n/sum(n),
+        pct_label = paste0(round(pct * 100, 0), "%"))
+
+grouped_bar_chart(df, reasonable_price_range, age_group_collapsed) +
+    labs(
+        title = "What ticket price range feels reasonable to you for a professional choral concert?",
+        subtitle = "By age group"
+    )
+```
+
+# Singers' Survey
+
+# Organizational Survey
+
