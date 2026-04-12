@@ -23,6 +23,8 @@ audience_data_full <- read_rds("data/audience_survey.rds") |>
         TRUE ~ "Under 65"
     ))
 
+singer_data_full <- read_rds("data/singer_survey.rds")
+
 # set colours
 teal <- "#007f97"
 light_teal <- "#98b8b8"
