@@ -137,7 +137,7 @@ col_names <- c(
   "singers_support_choirs",
   "txt_other_comments",
   "age_group",
-  "time_performaing"
+  "time_performing"
 )
 
 # rename singer survey columns
@@ -150,4 +150,59 @@ survey_df <- survey_df |>
 
 write_rds(survey_df, "data/singer_survey.rds")
 
+
+# read organization survey data
+org_columns <- (c(
+"id",
+"x_collector_id",
+"date_submitted",
+"x_end_date",
+"x_ip_address",
+"x_email",
+"x_first_name",
+"x_last_name",
+"x_custom_data_1",
+"organization",
+"year_founded",
+"choir_focus",
+"operating_budget",
+"revenue_tickets",
+"percentage_tickets",
+"revenue_donations",
+"percentage_donations",
+"revenue_grants",
+"percentage_grants",
+"revenue_government",
+"percentage_government",
+"revenue_sponsorship",
+"percentage_sponsorship",
+"revenue_other",
+"percentage_other",
+"average_attendance",
+"num_concerts_annually",
+"num_mailing_list",
+"audience_trend",
+"num_active_singers",
+"singer_pay",
+"singer_turnover",
+"pct_sing_other_choir",
+"staff_roles_hours",
+"volunteer_roles",
+"num_volunteers",
+"num_board",
+"num_staff",
+"staff_hours")
+)
+
+org_survey <- read_csv(
+  file = "data/organization_survey_clean.csv",
+  skip = 2,
+  col_names = org_columns) |> 
+  mutate(id = as.character(id))
+
+write_rds(org_survey, "data/organization_survey.rds")
+
 rm(list = ls())
+
+
+

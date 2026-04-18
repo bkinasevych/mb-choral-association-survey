@@ -55,3 +55,9 @@ data |>
   plot_theme()
 
 }
+
+calc_percent <- function(data){
+  data |> 
+    mutate(pct = n/sum(n),
+    pct_label = paste0(round(pct * 100, 0), "%"))
+}

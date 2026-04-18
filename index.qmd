@@ -23,7 +23,22 @@ audience_data_full <- read_rds("data/audience_survey.rds") |>
         TRUE ~ "Under 65"
     ))
 
-singer_data_full <- read_rds("data/singer_survey.rds")
+singer_data_full <- read_rds("data/singer_survey.rds") |> 
+    mutate(age_group_collapsed = case_when(
+        age_group %in% c("Under 25", "25–34", "35–44") ~ "Under 45",
+        age_group %in% c("45–54", "55–64", "65+") ~ "45 plus",
+        TRUE ~ age_group)) |> 
+    mutate(time_performing_collapsed = case_when(
+        time_performing == "more than 10 years" ~ "More than 10 yrs",
+        time_performing %in% c("1-2 years", "3-5 years", "6-10 years") ~ "Less than 10 yrs",
+        TRUE ~ time_performing)) |> 
+    mutate(age_group_collapsed = factor(age_group_collapsed,
+        levels = c("Under 45", "45 plus")),
+            time_performing_collapsed = factor(time_performing_collapsed,
+        levels = c("Less than 10 yrs", "More than 10 yrs")))
+
+
+organization_data_full <- read_rds("data/organization_survey.rds")
 
 # set colours
 teal <- "#007f97"
@@ -44,16 +59,18 @@ plot_theme <- function(){
 
 source("scripts/functions.R")
 
-# count number of responses to date
-n_respondents <- audience_data_full |> 
-    count() |> 
-    pull(n)
 
 ```
 
 # Audience Survey
 
 ## Row {height = 10%}
+
+```{r}
+n_respondents <- audience_data_full |> 
+    count() |> 
+    pull(n)
+```
 
 Number of respondents: `r n_respondents`
 
@@ -97,7 +114,8 @@ df <- audience_data_full |>
     drop_na() |> 
     mutate(
         pct = n/sum(n),
-        pct_label = paste0(round(pct*100, 1), "%"))
+        pct_label = paste0(round(pct*100, 1), "%"),
+        received_from = fct_reorder(received_from, pct, .desc = TRUE))
         
 simple_bar_chart(df, received_from) +
     labs(title = "How did you receive this survey?") +
@@ -113,8 +131,7 @@ df <- audience_data_full |>
     drop_na(num_concerts_attended) |> 
     mutate(
         pct = n/sum(n),
-        pct_label = paste0(round(pct * 100, 0), "%")
-    )
+        pct_label = paste0(round(pct * 100, 0)))
     
 simple_bar_chart(df, num_concerts_attended) +
     labs(title = "Approximately how many choral concerts do you attend in a year?")
@@ -156,7 +173,8 @@ df <- audience_data_full |>
     filter(!is.na(value)) |> 
     count(value) |> 
     mutate(pct = n/n_respondents,
-        pct_label = paste0(round(pct * 100, 0), "%"))
+        pct_label = paste0(round(pct * 100, 0), "%"),
+        value = fct_reorder(value, pct, .desc = TRUE))
         
 simple_bar_chart(df, value) +
     labs(title = "Which of the following choirs have you attended in the past 3 years?")
@@ -173,7 +191,8 @@ df <- audience_data_full |>
     count(value) |> 
     mutate(
         pct = n/n_respondents,
-        pct_label = paste0(round(pct * 100, 0), "%"))
+        pct_label = paste0(round(pct * 100, 0), "%"),
+        value = fct_reorder(value, pct, .desc = TRUE))
 
 grouped_bar_chart(df, value, age_group_collapsed) +
     labs(
@@ -243,7 +262,8 @@ df <- audience_data_full |>
         arrange(desc(n)) |> 
         mutate(
             pct = n/n_respondents,
-            pct_label = paste0(round(pct * 100, 0), "%"))
+            pct_label = paste0(round(pct * 100, 0), "%"),
+            value = fct_reorder(value, pct, .desc = TRUE))
             
 simple_bar_chart(df, value) +
     labs(
@@ -269,7 +289,8 @@ df <- audience_data_full |>
         count(value) |> 
         mutate(
             pct = n/n_respondents,
-            pct_label = paste0(round(pct * 100, 0), "%"))
+            pct_label = paste0(round(pct * 100, 0), "%"),
+            value = fct_reorder(value, pct, .desc = TRUE))
             
 grouped_bar_chart(df, value, age_group_collapsed) +
     labs(
@@ -296,7 +317,8 @@ df <- audience_data_full |>
         arrange(desc(n)) |> 
         mutate(
             pct = n/n_respondents,
-            pct_label = paste0(round(pct * 100, 0), "%"))
+            pct_label = paste0(round(pct * 100, 0), "%"),
+            value = fct_reorder(value, pct, .desc = TRUE))
 
 simple_bar_chart(df, value) +
     labs(
@@ -318,7 +340,8 @@ df <- audience_data_full |>
     group_by(age_group_collapsed) |> 
     count(value) |> 
     mutate(pct = n/sum(n),
-        pct_label = paste0(round(pct * 100, 0), "%"))
+        pct_label = paste0(round(pct * 100, 0), "%"),
+        value = fct_reorder(value, pct, .desc = TRUE))
 
 grouped_bar_chart(df, value, age_group_collapsed) +
     labs(
@@ -338,7 +361,8 @@ df <- audience_data_full |>
     count(value) |> 
     arrange(desc(n)) |> 
     mutate(pct = n/n_respondents,
-        pct_label = paste0(round(pct * 100, 0), "%"))
+        pct_label = paste0(round(pct * 100, 0), "%"),
+        value = fct_reorder(value, pct, .desc = TRUE))
         
 simple_bar_chart(df, value) +
     labs(
@@ -357,7 +381,8 @@ df <- audience_data_full |>
     group_by(age_group_collapsed) |> 
     count(value) |> 
     mutate(pct = n/n_respondents,
-        pct_label = paste0(round(pct * 100, 0), "%"))
+        pct_label = paste0(round(pct * 100, 0), "%"),
+        value = fct_reorder(value, pct, .desc = TRUE))
         
 grouped_bar_chart(df, value, age_group_collapsed) +
     labs(
@@ -375,7 +400,7 @@ df <- audience_data_full |>
     count(awareness) |> 
     drop_na(awareness) |> 
     mutate(pct = n/sum(n),
-        pct_label = paste0(round(pct * 100, 0), "%"))
+        pct_label = paste0(round(pct * 100, 0), "%"),)
         
 simple_bar_chart(df, awareness) +
     labs(
@@ -502,6 +527,122 @@ grouped_bar_chart(df, reasonable_price_range, age_group_collapsed) +
 ```
 
 # Singers' Survey
+
+## Row {height = 10%}
+
+```{r}
+n_respondents <- count(singer_data_full) |> 
+    pull(n)
+```
+
+Number of respondents: `r n_respondents`
+
+## Row {height = 45%}
+
+### Column {.tabset}
+
+```{r}
+#| title: "Age"
+
+df <- singer_data_full |> 
+    count(age_group) |> 
+    drop_na(age_group) |> 
+    mutate(pct = n/sum(n),
+    pct_label = paste0(round(pct * 100, 0), "%"))
+
+simple_bar_chart(df, age_group)
+
+
+```
+
+```{r}
+#| title: "Years performing"
+
+df <- singer_data_full |> 
+    count(time_performing) |> 
+    drop_na(time_performing) |> 
+    mutate(pct = n/sum(n),
+    pct_label = paste0(round(pct * 100, 0), "%"))
+
+simple_bar_chart(df, time_performing)
+
+
+```
+
+```{r}
+#| title: "Num choirs"
+
+df <- singer_data_full |> 
+    count(num_choirs_now) |> 
+    calc_percent()
+
+simple_bar_chart(df, num_choirs_now) +
+    labs(title = "How many choirs do you currently sing with?")
+
+```
+
+
+```{r}
+#| title: "Num past choirs"
+
+df <- singer_data_full |> 
+    count(num_choirs_past) |> 
+    calc_percent()
+
+simple_bar_chart(df, num_choirs_past) +
+    labs(title = "In the past 5 years, how many different choirs have you sung with in Manitoba?")
+
+```
+
+```{r}
+#| title: "All choirs"
+
+df <- singer_data_full |> 
+    select(starts_with("sing_")) |> 
+    pivot_longer(cols = everything()) |> 
+    drop_na(value) |> 
+    count(value) |> 
+    mutate(pct = n/n_respondents,
+        pct_label = paste0(round(pct * 100, 0), "%")) |> 
+    mutate(value = fct_reorder(value, pct, .desc = TRUE))
+
+simple_bar_chart(df, value) +
+    labs(title = "Which organizations do you currently sing with?")
+```
+
+
+### Column {.tabset}
+
+How many choral rehearsals per week do you typically attend during the busiest part of the season?
+
+What motivates you to sing in a professional choir?
+
+How important is compensation in your decision to participate in a choir?
+
+In your view, how fair is the compensation singers receive from professional choirs in Manitoba?
+
+
+
+
+
+
+
+## Row
+
+### Column {.tabset}
+How sustainable does your current level of professional choral involvement feel for you personally?
+
+What challenges do you experience related to singing in professional choirs?
+
+
+If you had to reduce your choir involvement, what would most influence that decision?
+
+
+
+### Column {.tabset}
+From a singer's perspective, what changes would most improve the sustainability of professional choral singing in Manitoba?
+
+How reasonable is it to expect singers to support the marketing and fundraising efforts of the choirs they sing in?
 
 # Organizational Survey
 
