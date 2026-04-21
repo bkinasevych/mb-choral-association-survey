@@ -1,11 +1,11 @@
----
-title: "Manitoba Choral Association Stakeholder Feedback"
-format:
-    dashboard:
-        theme: styles.scss
----
-
-```{r}
+#
+#
+#
+#
+#
+#
+#
+#
 
 #| include: false
 #| label: setup
@@ -60,13 +60,13 @@ plot_theme <- function(){
 source("scripts/functions.R")
 
 
-```
-
-# Audience Survey
-
-## Row {height = 5%}
-
-```{r}
+#
+#
+#
+#
+#
+#
+#
 n_respondents <- audience_data_full |> 
     count() |> 
     pull(n)
@@ -80,16 +80,16 @@ n_over65 <- audience_data_full |>
     filter(age_group_collapsed == "65+") |> 
     count() |> 
     pull()
-```
-
-Number of respondents: `r n_respondents`
-
-## Row
-
-### Column {.tabset}
-
-
-```{r}
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 #| title: "Age groups"
 
 df <- audience_data_full |> 
@@ -100,9 +100,9 @@ df <- audience_data_full |>
 
 simple_bar_chart(df, age_group)
 
-```
-
-```{r}
+#
+#
+#
 #| title: "Location"
 
 df <- audience_data_full |> 
@@ -114,9 +114,9 @@ df <- audience_data_full |>
 simple_bar_chart(df, live) +
     labs(title = "Where do you currently live?")
 
-```
-
-```{r}
+#
+#
+#
 #| title: "Origin"
 
 df <- audience_data_full |> 
@@ -130,10 +130,10 @@ df <- audience_data_full |>
 simple_bar_chart(df, received_from) +
     labs(title = "How did you receive this survey?") +
     scale_x_continuous(expand = expansion(mult = c(0, 0.2)))
-```
-
-
-```{r}
+#
+#
+#
+#
 #| title: "Attendance"
 
 df <- audience_data_full |> 
@@ -147,11 +147,11 @@ simple_bar_chart(df, num_concerts_attended) +
     labs(title = "Approximately how many choral concerts do you attend in a year?")
 
 
-```
-
-
-
-```{r}
+#
+#
+#
+#
+#
 #| title: "Attendance by age"
 
 df <- audience_data_full |> 
@@ -169,12 +169,12 @@ grouped_bar_chart(df, num_concerts_attended, age_group_collapsed) +
     )
 
 
-```
-
-
-### Column {.tabset}
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| title: "Choirs"
 
 df <- audience_data_full |> 
@@ -188,9 +188,9 @@ df <- audience_data_full |>
         
 simple_bar_chart(df, value) +
     labs(title = "Which of the following choirs have you attended in the past 3 years?")
-```
-
-```{r}
+#
+#
+#
 #| title: "Choirs by age"
 
 df <- audience_data_full |> 
@@ -199,11 +199,8 @@ df <- audience_data_full |>
     filter(!is.na(value)) |> 
     group_by(age_group_collapsed) |> 
     count(value) |> 
-    mutate(denom = if_else(
-        age_group_collapsed == "Under 65", n_under65, n_over65
-    )) |> 
     mutate(
-        pct = n/denom,
+        pct = n/n_respondents,
         pct_label = paste0(round(pct * 100, 0), "%"),
         value = fct_reorder(value, pct, .desc = TRUE))
 
@@ -214,9 +211,9 @@ grouped_bar_chart(df, value, age_group_collapsed) +
     )
 
 
-```
-
-```{r}
+#
+#
+#
 #| title: "Post-Covid attendance"
 
 df <- audience_data_full |> 
@@ -232,9 +229,9 @@ simple_bar_chart(df, frequency_now) +
 
 
 
-```
-
-```{r}
+#
+#
+#
 #| title: "Post-Covid attendance by age"
 
 df <- audience_data_full |>
@@ -251,13 +248,13 @@ grouped_bar_chart(df, frequency_now, age_group_collapsed) +
         subtitle = "By age group"
     )     
 
-```
-
-## Row
-
-### Column {.tabset}
-
-```{r}
+#
+#
+#
+#
+#
+#
+#
 #| title: "Motivation"
 
 df <- audience_data_full |> 
@@ -283,9 +280,9 @@ simple_bar_chart(df, value) +
         title = "What usually motivates you to attend a choral concert?"
     )
 
-```
-
-```{r}
+#
+#
+#
 #| title: "Motivation by age"
 
 df <- audience_data_full |> 
@@ -300,11 +297,8 @@ df <- audience_data_full |>
         filter(!is.na(value)) |> 
     group_by(age_group_collapsed) |> 
         count(value) |> 
-    mutate(denom = if_else(
-        age_group_collapsed == "Under 65", n_under65, n_over65
-    )) |> 
         mutate(
-            pct = n/denom,
+            pct = n/n_respondents,
             pct_label = paste0(round(pct * 100, 0), "%"),
             value = fct_reorder(value, pct, .desc = TRUE))
             
@@ -315,9 +309,9 @@ grouped_bar_chart(df, value, age_group_collapsed) +
     )
 
 
-```
-
-```{r}
+#
+#
+#
 #| title: "Barriers"
 
 df <- audience_data_full |> 
@@ -340,9 +334,9 @@ simple_bar_chart(df, value) +
     labs(
         title = "What factors might prevent you from attending a choral concert more often?"
     )
-```
-
-```{r}
+#
+#
+#
 #| title: "Barriers by age"
 
 df <- audience_data_full |> 
@@ -355,10 +349,7 @@ df <- audience_data_full |>
     filter(!is.na(value)) |> 
     group_by(age_group_collapsed) |> 
     count(value) |> 
-    mutate(denom = if_else(
-        age_group_collapsed == "Under 65", n_under65, n_over65
-    )) |> 
-    mutate(pct = n/denom,
+    mutate(pct = n/sum(n),
         pct_label = paste0(round(pct * 100, 0), "%"),
         value = fct_reorder(value, pct, .desc = TRUE))
 
@@ -367,9 +358,9 @@ grouped_bar_chart(df, value, age_group_collapsed) +
         title = "What factors might prevent you from attending a choral concert more often?",
         subtitle = "By age group"
     )
-```
-
-```{r}
+#
+#
+#
 #| title: "Other events"
 
 df <- audience_data_full |> 
@@ -388,9 +379,9 @@ simple_bar_chart(df, value) +
         title = "What other types of arts or cultural event do you attend?"
     )
 
-```
-
-```{r}
+#
+#
+#
 #| title: "Other events by age"
 
 df <- audience_data_full |> 
@@ -399,10 +390,7 @@ df <- audience_data_full |>
     drop_na(value) |> 
     group_by(age_group_collapsed) |> 
     count(value) |> 
-    mutate(denom = if_else(
-        age_group_collapsed == "Under 65", n_under65, n_over65
-    )) |> 
-    mutate(pct = n/denom,
+    mutate(pct = n/n_respondents,
         pct_label = paste0(round(pct * 100, 0), "%"),
         value = fct_reorder(value, pct, .desc = TRUE))
         
@@ -411,11 +399,11 @@ grouped_bar_chart(df, value, age_group_collapsed) +
         title = "What other types of arts or cultural event do you attend?",
         subtitle = "By age group",
     )
-```
-
-### Column {.tabset}
-
-```{r}
+#
+#
+#
+#
+#
 #| title: "Awareness"
 
 df <- audience_data_full |> 
@@ -429,9 +417,9 @@ simple_bar_chart(df, awareness) +
         title = "Before receiving this survey, how aware were you of the range of professional choral organizations in Manitoba?"
     )
     
-```
-
-```{r}
+#
+#
+#
 #| title: "Awareness by age"
 
 df <- audience_data_full |> 
@@ -447,9 +435,9 @@ grouped_bar_chart(df, awareness, age_group_collapsed) +
         subtitle = "By age group"
     )
 
-```
-
-```{r}
+#
+#
+#
 #| title: "Distinction"
 
 df <- audience_data_full |> 
@@ -463,9 +451,9 @@ simple_bar_chart(df, distinct_choirs) +
         title = "In your experience, do the different professional choirs in Manitoba have clear and distinct identities and styles?"
     )
 
-```
-
-```{r}
+#
+#
+#
 #| title: "Distinction by age"
 
 df <- audience_data_full |> 
@@ -481,9 +469,9 @@ grouped_bar_chart(df, distinct_choirs, age_group_collapsed) +
         subtitle = "By age group"
     )
 
-```
-
-``` {r}
+#
+#
+#
 #| title: "Value"
 
 df <- audience_data_full |> 
@@ -497,9 +485,9 @@ simple_bar_chart(df, rate_value) +
         title = "How would you rate the value of choral concert tickets compared with other arts events you attend?"
     )
 
-```
-
-```{r}
+#
+#
+#
 #| title: "Value by age"
 
 df <- audience_data_full |> 
@@ -514,9 +502,9 @@ grouped_bar_chart(df, rate_value, age_group_collapsed) +
         title = "In your experience, do the different professional choirs in Manitoba have clear and distinct identities and styles?",
         subtitle = "By age group"
     )
-```
-
-```{r}
+#
+#
+#
 #| title: "Price range"
 
 df <- audience_data_full |> 
@@ -529,9 +517,9 @@ simple_bar_chart(df, reasonable_price_range) +
     labs(
         title = "What ticket price range feels reasonable to you for a professional choral concert?"
     )
-```
-
-```{r}
+#
+#
+#
 #| title: "Price range by age"
 
 df <- audience_data_full |> 
@@ -546,24 +534,24 @@ grouped_bar_chart(df, reasonable_price_range, age_group_collapsed) +
         title = "What ticket price range feels reasonable to you for a professional choral concert?",
         subtitle = "By age group"
     )
-```
-
-# Singers' Survey
-
-## Row {height = 5%}
-
-```{r}
+#
+#
+#
+#
+#
+#
+#
 n_respondents <- count(singer_data_full) |> 
     pull(n)
-```
-
-Number of respondents: `r n_respondents`
-
-## Row
-
-### Column {.tabset}
-
-```{r}
+#
+#
+#
+#
+#
+#
+#
+#
+#
 #| title: "Age"
 
 df <- singer_data_full |> 
@@ -575,9 +563,9 @@ df <- singer_data_full |>
 simple_bar_chart(df, age_group)
 
 
-```
-
-```{r}
+#
+#
+#
 #| title: "Years performing"
 
 df <- singer_data_full |> 
@@ -589,9 +577,9 @@ df <- singer_data_full |>
 simple_bar_chart(df, time_performing)
 
 
-```
-
-```{r}
+#
+#
+#
 #| title: "Num choirs"
 
 df <- singer_data_full |> 
@@ -601,10 +589,10 @@ df <- singer_data_full |>
 simple_bar_chart(df, num_choirs_now) +
     labs(title = "How many choirs do you currently sing with?")
 
-```
-
-
-```{r}
+#
+#
+#
+#
 #| title: "Num past choirs"
 
 df <- singer_data_full |> 
@@ -614,9 +602,9 @@ df <- singer_data_full |>
 simple_bar_chart(df, num_choirs_past) +
     labs(title = "In the past 5 years, how many different choirs have\nyou sung with in Manitoba?")
 
-```
-
-```{r}
+#
+#
+#
 #| title: "All choirs"
 
 df <- singer_data_full |> 
@@ -630,9 +618,9 @@ df <- singer_data_full |>
 
 simple_bar_chart(df, value) +
     labs(title = "Which organizations do you currently sing with?")
-```
-
-```{r}
+#
+#
+#
 #| title: "Num rehearsals"
 
 df <- singer_data_full |> 
@@ -642,14 +630,14 @@ df <- singer_data_full |>
 
 simple_bar_chart(df, num_rehearsals) +
     labs(
-        title = "How many choral rehearsals per week do you typically\nattend during the busiest part of the season?"
+        title = "How many choral rehearsals per week do you typically attend during the busiest part of the season?"
     )
-```
-
-
-### Column {.tabset}
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| title: "Motivation"
 
 df <- singer_data_full |> 
@@ -669,9 +657,9 @@ simple_bar_chart(df, value) +
     labs(
         title = "What motivates you to sing in a professional choir?"
     )
-```
-
-```{r}
+#
+#
+#
 #| title: "Motivation by age"
 
 n_under45 <- singer_data_full |> 
@@ -704,9 +692,9 @@ grouped_bar_chart(df, value, age_group_collapsed) +
         title = "What motivates you to sing in a professional choir?",
         subtitle = "By age group"
     )
-```
-
-```{r}
+#
+#
+#
 #| title: "Motivation by years"
 
 n_under_ten <- singer_data_full |> 
@@ -741,7 +729,7 @@ grouped_bar_chart(df, value, time_performing_collapsed) +
     )
 
 ```
-```{r}
+#
 #| title: "Compensation"
 
 df <- singer_data_full |> 
@@ -751,11 +739,11 @@ df <- singer_data_full |>
 
 simple_bar_chart(df, importance_compensation) +
     labs(
-        title = "How important is compensation in your decision to participate in a choir?"
+        title = "How important is compensation in your decision\nto participate in a choir?"
     )
-```
-
-```{r}
+#
+#
+#
 #| title: "Compensation by age"
 
 df <- singer_data_full |> 
@@ -766,12 +754,12 @@ df <- singer_data_full |>
 
 grouped_bar_chart(df, importance_compensation, age_group_collapsed) +
     labs(
-        title = "How important is compensation in your decision to participate in a choir?",
+        title = "How important is compensation in your decision\nto participate in a choir?",
         subtitle = "By age group"
     )
-```
-
-```{r}
+#
+#
+#
 #| title: "Compensation by years"
 
 df <- singer_data_full |> 
@@ -782,17 +770,17 @@ df <- singer_data_full |>
 
 grouped_bar_chart(df, importance_compensation, time_performing_collapsed) +
     labs(
-        title = "How important is compensation in your decision to participate in a choir?",
+        title = "How important is compensation in your decision\nto participate in a choir?",
         subtitle = "By number of years performing"
     )
-```
-
-
-## Row
-
-### Column {.tabset}
-
-```{r}
+#
+#
+#
+#
+#
+#
+#
+#
 #| title: "Satisfaction w/ pay"
 
 df <- singer_data_full |> 
@@ -805,9 +793,9 @@ simple_bar_chart(df, fairness_compensation) +
         title = "In your view, how fair is the compensation singers\nreceive from professional choirs in Manitoba?"
     )
 
-```
-
-```{r}
+#
+#
+#
 #| title: "Satisfaction by age"
 
 df <- singer_data_full |> 
@@ -822,10 +810,10 @@ grouped_bar_chart(df, fairness_compensation, age_group_collapsed) +
         subtitle = "By age group"
     )
 
-```
-
-
-```{r}
+#
+#
+#
+#
 #| title: "Satisfaction by years"
 
 df <- singer_data_full |> 
@@ -839,9 +827,9 @@ grouped_bar_chart(df, fairness_compensation, time_performing_collapsed) +
         title = "In your view, how fair is the compensation singers\nreceive from professional choirs in Manitoba?",
         subtitle = "By number of years performing"
     )
-```
-
-```{r}
+#
+#
+#
 #| title: "Sustainability"
 
 df <- singer_data_full |> 
@@ -852,9 +840,9 @@ simple_bar_chart(df, sustainability) +
     labs(
         title = "How sustainable does your current level\nof professional choral involvement feel for you personally?"
     )
-```
-
-```{r}
+#
+#
+#
 #| title: "Sustainability by age"
 
 df <- singer_data_full |> 
@@ -869,9 +857,9 @@ grouped_bar_chart(df, sustainability, age_group_collapsed) +
         subtitle = "By age group"
     )
 
-```
-
-```{r}
+#
+#
+#
 #| title: "Sustainability by years"
 
 df <- singer_data_full |> 
@@ -886,9 +874,9 @@ grouped_bar_chart(df, sustainability, time_performing_collapsed) +
         subtitle = "By number of years performing"
     )
 
-```
-
-```{r}
+#
+#
+#
 #| title: "Barriers"
 
 df <- singer_data_full |> 
@@ -907,11 +895,10 @@ df <- singer_data_full |>
 simple_bar_chart(df, value) +
     labs(
         title = "What challenges do you experience related to singing in professional choirs?"
-    ) +
-    theme(plot.title = element_text(size = 16))
-```
-
-```{r}
+    )
+#
+#
+#
 #| title: "Barriers by age"
 
 df <- singer_data_full |> 
@@ -935,13 +922,11 @@ grouped_bar_chart(df, value, age_group_collapsed) +
     labs(
         title = "What challenges do you experienc related to singing in professional choirs?",
         subtitle = "By age group"
-    ) +
-    theme(plot.title = element_text(size = 16))
+    )
 
-
-```
-
-```{r}
+#
+#
+#
 #| title: "Barriers by years"
 
 df <- singer_data_full |> 
@@ -965,14 +950,13 @@ grouped_bar_chart(df, value, time_performing_collapsed) +
     labs(
         title = "What challenges do you experienc related to singing in professional choirs?",
         subtitle = "By number of years performing"
-    ) +
-    theme(plot.title = element_text(size = 16))
+    )
 
-```
-
-### Column {.tabset}
-
-```{r}
+#
+#
+#
+#
+#
 #| title: "Reduced involvement"
 
 df <- singer_data_full |> 
@@ -983,12 +967,11 @@ df <- singer_data_full |>
 
 simple_bar_chart(df, influence_reduction) +
     labs(
-        title = "If you had to reduce your choir involvement,\nwhat would most influence that decision?"
+        title = "If you had to reduce your choir involvement, what would most influence that decision?"
     )
-```
-    
-
-```{r}
+#
+#
+#
 #| title: "Reduce involvement by age"
 
 df <- singer_data_full |> 
@@ -1000,13 +983,13 @@ df <- singer_data_full |>
 
 grouped_bar_chart(df, influence_reduction, age_group_collapsed) +
     labs(
-        title = "If you had to reduce your choir involvement,\nwhat would most influence that decision?",
+        title = "If you had to reduce your choir involvement, what would most influence that decision?",
         subtitle = "By age group"
     )
 
-```
-
-```{r}
+#
+#
+#
 #| title: "Reduce involvement by years"
 
 df <- singer_data_full |> 
@@ -1018,13 +1001,13 @@ df <- singer_data_full |>
 
 grouped_bar_chart(df, influence_reduction, time_performing_collapsed) +
     labs(
-        title = "If you had to reduce your choir involvement,\nwhat would most influence that decision?",
+        title = "If you had to reduce your choir involvement, what would most influence that decision?",
         subtitle = "By number of years performing"
     )
-```
-
-
-```{r}
+#
+#
+#
+#
 #| title: "Improvements"
 
 df <- singer_data_full |> 
@@ -1041,12 +1024,12 @@ df <- singer_data_full |>
 
 simple_bar_chart(df, value) +
     labs(
-        title = "From a singer's perspective, what changes would most improve the\nsustainability of professional choral singing in Manitoba?"
+        title = "From a singer's perspective, what changes would most improve the sustainability of professional choral singing in Manitoba?"
     )
 
-```
-
-```{r}
+#
+#
+#
 #| title: "Improvements by age"
 
 df <- singer_data_full |> 
@@ -1067,12 +1050,12 @@ df <- singer_data_full |>
 
 grouped_bar_chart(df, value, age_group_collapsed) +
     labs(
-        title = "From a singer's perspective, what changes would most improve the\nsustainability of professional choral singing in Manitoba?",
+        title = "From a singer's perspective, what changes would most improve the sustainability of professional choral singing in Manitoba?",
         subtitle = "By age group"
     )
-```
-
-```{r}
+#
+#
+#
 #| title: "Improvement by years"
 
 df <- singer_data_full |> 
@@ -1093,13 +1076,13 @@ df <- singer_data_full |>
 
 grouped_bar_chart(df, value, time_performing_collapsed) +
     labs(
-        title = "From a singer's perspective, what changes would most improve the\nsustainability of professional choral singing in Manitoba?",
+        title = "From a singer's perspective, what changes would most improve the sustainability of professional choral singing in Manitoba?",
         subtitle = "By number of years performing"
     )
 
-```
-
-```{r}
+#
+#
+#
 #| title: "Singers fundraising"
 
 df <- singer_data_full |> 
@@ -1109,11 +1092,11 @@ df <- singer_data_full |>
 
 simple_bar_chart(df, singers_support_choirs) +
     labs(
-        title = "How reasonable is it to expect singers to support the marketing\n and fundraising efforts of the choirs they sing in?"
+        title = "How reasonable is it to expect singers to support the marketing and fundraising efforts of the choirs they sing in?"
     )
-```
-
-```{r}
+#
+#
+#
 #| title: "Singers fundraising by age"
 
 df <- singer_data_full |> 
@@ -1124,12 +1107,12 @@ df <- singer_data_full |>
 
 grouped_bar_chart(df, singers_support_choirs, age_group_collapsed) +
     labs(
-        title = "How reasonable is it to expect singers to support the marketing\n and fundraising efforts of the choirs they sing in?",
+        title = "How reasonable is it to expect singers to support the marketing and fundraising efforts of the choirs they sing in?",
         subtitle = "By age group"
     )
-```
-
-```{r}
+#
+#
+#
 #| title: "Singers fundraising by years"
 
 df <- singer_data_full |> 
@@ -1140,13 +1123,16 @@ df <- singer_data_full |>
 
 grouped_bar_chart(df, singers_support_choirs, time_performing_collapsed) +
     labs(
-        title = "How reasonable is it to expect singers to support the marketing\nand fundraising efforts of the choirs they sing in?",
+        title = "How reasonable is it to expect singers to support the marketing and fundraising efforts of the choirs they sing in?",
         subtitle = "By number of years performing"
     )
 
-```
-
-
-
-# Organizational Survey
-
+#
+#
+#
+#
+#
+#
+#
+#
+#
