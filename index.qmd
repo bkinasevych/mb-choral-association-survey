@@ -33,9 +33,9 @@ singer_data_full <- read_rds("data/singer_survey.rds") |>
         time_performing %in% c("1-2 years", "3-5 years", "6-10 years") ~ "Less than 10 yrs",
         TRUE ~ time_performing)) |> 
     mutate(age_group_collapsed = factor(age_group_collapsed,
-        levels = c("Under 45", "45 plus")),
+        levels = c("45 plus", "Under 45")),
             time_performing_collapsed = factor(time_performing_collapsed,
-        levels = c("Less than 10 yrs", "More than 10 yrs")))
+        levels = c("More than 10 yrs", "Less than 10 yrs")))
 
 
 organization_data_full <- read_rds("data/organization_survey.rds")
@@ -590,7 +590,7 @@ df <- singer_data_full |>
     calc_percent()
 
 simple_bar_chart(df, num_choirs_past) +
-    labs(title = "In the past 5 years, how many different choirs have you sung with in Manitoba?")
+    labs(title = "In the past 5 years, how many different choirs have\nyou sung with in Manitoba?")
 
 ```
 
@@ -613,11 +613,101 @@ simple_bar_chart(df, value) +
 
 ### Column {.tabset}
 
-How many choral rehearsals per week do you typically attend during the busiest part of the season?
+```{r}
+#| title: "Num rehearsals"
 
-What motivates you to sing in a professional choir?
+df <- singer_data_full |> 
+    count(num_rehearsals) |> 
+    drop_na(num_rehearsals) |> 
+    calc_percent()
 
-How important is compensation in your decision to participate in a choir?
+simple_bar_chart(df, num_rehearsals) +
+    labs(
+        title = "How many choral rehearsals per week do you typically attend during the busiest part of the season?"
+    )
+```
+
+
+```{r}
+#| title: "Motivation"
+
+df <- singer_data_full |> 
+    select(starts_with("motivation"), -contains("other")) |> 
+    pivot_longer(cols = everything()) |> 
+    drop_na(value) |> 
+    count(value) |> 
+    mutate(pct = n/n_respondents,
+        pct_label = paste0(round(pct * 100, 0), "%")) |> 
+    mutate(value = fct_reorder(value, pct, .desc = TRUE))
+
+simple_bar_chart(df, value) +
+    labs(
+        title = "What motivates you to sing in a professional choir?"
+    )
+```
+
+```{r}
+#| title: "Motivation by age"
+
+n_under45 <- singer_data_full |> 
+    filter(age_group_collapsed == "Under 45") |> 
+    count() |> 
+    pull()
+
+n_over45 <- singer_data_full |> 
+    filter(age_group_collapsed == "45 plus") |> 
+    count() |> 
+    pull()
+
+df <- singer_data_full |> 
+    select(age_group_collapsed, starts_with("motivation"), -contains("other")) |> 
+    pivot_longer(cols = -age_group_collapsed) |> 
+    group_by(age_group_collapsed) |> 
+    count(value) |> 
+    drop_na() |> 
+    mutate(denom = if_else(age_group_collapsed == "Under 45",
+        n_under45, n_over45)) |> 
+    mutate(pct = n/denom,
+        pct_label = paste0(round(pct * 100, 0), "%"))
+
+grouped_bar_chart(df, value, age_group_collapsed) +
+    labs(
+        title = "What motivates you to sing in a professional choir?",
+        subtitle = "By age group"
+    )
+```
+
+```{r}
+#| title: "Compensation"
+
+df <- singer_data_full |> 
+    count(importance_compensation) |> 
+    drop_na() |> 
+    calc_percent()
+
+simple_bar_chart(df, importance_compensation) +
+    labs(
+        title = "How important is compensation in your decision\nto participate in a choir?"
+    )
+```
+
+```{r}
+#| title: "Compensation by age"
+
+df <- singer_data_full |> 
+    group_by(age_group_collapsed) |> 
+    count(importance_compensation) |> 
+    drop_na() |> 
+    calc_percent()
+
+grouped_bar_chart(df, importance_compensation, age_group_collapsed) +
+    labs(
+        title = "How important is compensation in your decision\nto participate in a choir?",
+        subtitle = "By age group"
+    )
+```
+
+
 
 In your view, how fair is the compensation singers receive from professional choirs in Manitoba?
 
