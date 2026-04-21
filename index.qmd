@@ -758,18 +758,172 @@ grouped_bar_chart(df, importance_compensation, time_performing_collapsed) +
 
 ### Column {.tabset}
 
-In your view, how fair is the compensation singers receive from professional choirs in Manitoba?
+```{r}
+#| title: "Satisfaction w/ pay"
 
-How sustainable does your current level of professional choral involvement feel for you personally?
+df <- singer_data_full |> 
+    count(fairness_compensation) |> 
+    drop_na() |> 
+    calc_percent()
 
-What challenges do you experience related to singing in professional choirs?
+simple_bar_chart(df, fairness_compensation) +
+    labs(
+        title = "In your view, how fair is the compensation singers\nreceive from professional choirs in Manitoba?"
+    )
 
+```
+
+```{r}
+#| title: "Satisfaction by age"
+
+df <- singer_data_full |> 
+    group_by(age_group_collapsed) |> 
+    count(fairness_compensation) |> 
+    drop_na() |> 
+    calc_percent()
+
+grouped_bar_chart(df, fairness_compensation, age_group_collapsed) +
+    labs(
+        title = "In your view, how fair is the compensation singers\nreceive from professional choirs in Manitoba?",
+        subtitle = "By age group"
+    )
+
+```
+
+
+```{r}
+#| title: "Satisfaction by years"
+
+df <- singer_data_full |> 
+    group_by(time_performing_collapsed) |> 
+    count(fairness_compensation) |> 
+    drop_na() |> 
+    calc_percent()
+
+grouped_bar_chart(df, fairness_compensation, time_performing_collapsed) +
+    labs(
+        title = "In your view, how fair is the compensation singers\nreceive from professional choirs in Manitoba?",
+        subtitle = "By number of years performing"
+    )
+```
+
+```{r}
+#| title: "Sustainability"
+
+df <- singer_data_full |> 
+    count(sustainability) |> 
+    calc_percent()
+
+simple_bar_chart(df, sustainability) +
+    labs(
+        title = "How sustainable does your current level\nof professional choral involvement feel for you personally?"
+    )
+```
+
+```{r}
+#| title: "Sustainability by age"
+
+df <- singer_data_full |> 
+    group_by(age_group_collapsed) |> 
+    count(sustainability) |> 
+    calc_percent() |> 
+    drop_na()
+
+grouped_bar_chart(df, sustainability, age_group_collapsed) +
+    labs(
+        title = "How sustainable does your current level\nof professional choral involvement feel for you personally?",
+        subtitle = "By age group"
+    )
+
+```
+
+```{r}
+#| title: "Sustainability by years"
+
+df <- singer_data_full |> 
+    group_by(time_performing_collapsed) |> 
+    count(sustainability) |> 
+    calc_percent() |> 
+    drop_na()
+
+grouped_bar_chart(df, sustainability, time_performing_collapsed) +
+    labs(
+        title = "How sustainable does your current level\nof professional choral involvement feel for you personally?",
+        subtitle = "By number of years performing"
+    )
+
+```
+
+```{r}
+#| title: "Barriers"
+
+df <- singer_data_full |> 
+    select(starts_with("barriers"), -contains("other")) |> 
+    pivot_longer(cols = everything()) |> 
+    count(value) |> 
+    drop_na() |> 
+    mutate(pct = n/n_respondents,
+        pct_label = paste0(round(pct * 100, 0), "%")) |> 
+    mutate(value = fct_reorder(value, pct, .desc = TRUE))
+
+simple_bar_chart(df, value) +
+    labs(
+        title = "What challenges do you experience related to singing in professional choirs?"
+    )
+```
+
+```{r}
+#| title: "Barriers by age"
+
+df <- singer_data_full |> 
+    select(starts_with("barriers"), -contains("other"), age_group_collapsed) |> 
+    pivot_longer(cols = -age_group_collapsed) |> 
+    group_by(age_group_collapsed) |> 
+    count(value) |> 
+    drop_na() |> 
+    mutate(denom = if_else(age_group_collapsed == "Under 45",
+        n_under45, n_over45),
+        pct = n/denom,
+        pct_label = paste0(round(pct * 100, 0), "%"),
+        ) |> 
+    mutate(value = fct_reorder(value, pct, .desc = TRUE))
+
+grouped_bar_chart(df, value, age_group_collapsed) +
+    labs(
+        title = "What challenges do you experienc related to singing in professional choirs?",
+        subtitle = "By age group"
+    )
+
+```
+
+```{r}
+#| title: "Barriers by years"
+
+df <- singer_data_full |> 
+    select(starts_with("barriers"), -contains("other"), time_performing_collapsed) |> 
+    pivot_longer(cols = -time_performing_collapsed) |> 
+    group_by(time_performing_collapsed) |> 
+    count(value) |> 
+    drop_na() |> 
+    mutate(denom = if_else(time_performing_collapsed == "Less than 10 yrs",
+        n_under_ten, n_over_ten),
+        pct = n/denom,
+        pct_label = paste0(round(pct * 100, 0), "%"),
+        ) |> 
+    mutate(value = fct_reorder(value, pct, .desc = TRUE))
+
+grouped_bar_chart(df, value, time_performing_collapsed) +
+    labs(
+        title = "What challenges do you experienc related to singing in professional choirs?",
+        subtitle = "By number of years performing"
+    )
+
+```
+
+### Column {.tabset}
 
 If you had to reduce your choir involvement, what would most influence that decision?
 
-
-
-### Column {.tabset}
 From a singer's perspective, what changes would most improve the sustainability of professional choral singing in Manitoba?
 
 How reasonable is it to expect singers to support the marketing and fundraising efforts of the choirs they sing in?
