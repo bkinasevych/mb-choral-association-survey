@@ -610,9 +610,6 @@ simple_bar_chart(df, value) +
     labs(title = "Which organizations do you currently sing with?")
 ```
 
-
-### Column {.tabset}
-
 ```{r}
 #| title: "Num rehearsals"
 
@@ -627,6 +624,8 @@ simple_bar_chart(df, num_rehearsals) +
     )
 ```
 
+
+### Column {.tabset}
 
 ```{r}
 #| title: "Motivation"
@@ -678,6 +677,37 @@ grouped_bar_chart(df, value, age_group_collapsed) +
 ```
 
 ```{r}
+#| title: "Motivation by years"
+
+n_under_ten <- singer_data_full |> 
+    filter(time_performing_collapsed == "Less than 10 yrs") |> 
+    count() |> 
+    pull()
+
+n_over_ten <- singer_data_full |> 
+    filter(time_performing_collapsed == "More than 10 yrs") |> 
+    count() |> 
+    pull()
+
+df <- singer_data_full |> 
+    select(time_performing_collapsed, starts_with("motivation"), -contains("other")) |> 
+    pivot_longer(cols = -time_performing_collapsed) |> 
+    group_by(time_performing_collapsed) |> 
+    count(value) |> 
+    drop_na() |> 
+    mutate(denom = if_else(time_performing_collapsed == "Less than 10 yrs",
+        n_under_ten, n_over_ten)) |> 
+    mutate(pct = n/denom,
+        pct_label = paste0(round(pct * 100, 0), "%"))
+
+grouped_bar_chart(df, value, time_performing_collapsed) +
+    labs(
+        title = "What motivates you to sing in a professional choir?",
+        subtitle = "By number of years performing"
+    )
+
+```
+```{r}
 #| title: "Compensation"
 
 df <- singer_data_full |> 
@@ -707,19 +737,29 @@ grouped_bar_chart(df, importance_compensation, age_group_collapsed) +
     )
 ```
 
+```{r}
+#| title: "Compensation by years"
 
+df <- singer_data_full |> 
+    group_by(time_performing_collapsed) |> 
+    count(importance_compensation) |> 
+    drop_na() |> 
+    calc_percent()
 
-In your view, how fair is the compensation singers receive from professional choirs in Manitoba?
-
-
-
-
-
+grouped_bar_chart(df, importance_compensation, time_performing_collapsed) +
+    labs(
+        title = "How important is compensation in your decision\nto participate in a choir?",
+        subtitle = "By number of years performing"
+    )
+```
 
 
 ## Row
 
 ### Column {.tabset}
+
+In your view, how fair is the compensation singers receive from professional choirs in Manitoba?
+
 How sustainable does your current level of professional choral involvement feel for you personally?
 
 What challenges do you experience related to singing in professional choirs?
