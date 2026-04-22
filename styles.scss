@@ -5,4 +5,22 @@ $link-color: darken($navbar-bg, 10%);
 $link-hover-color: darken($navbar-bg, 20%);
 
 
+
+
 /*-- scss:rules --*/
+
+
+
+
+/* allow dashboard items to shrink inside fixed-height rows */
+.quarto-dashboard .dashboard-row,
+.quarto-dashboard .dashboard-column,
+.quarto-dashboard .card {
+  min-height: 0;
+}
+
+/* make the gt table scroll inside its card instead of stretching the row */
+.scroll-table-card .card-body {
+  height: 100%;
+  overflow-y: auto;
+}
