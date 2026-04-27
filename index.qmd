@@ -1147,7 +1147,9 @@ grouped_bar_chart(df, singers_support_choirs, time_performing_collapsed) +
 
 ```
 
-
+```{r}
+knitr::knit_exit()
+```
 
 # Organizational Survey
 
